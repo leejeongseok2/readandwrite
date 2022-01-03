@@ -1,0 +1,29 @@
+#include <iostream>
+#include <thread>
+#include <atomic>
+#include <vector>
+#define SIZE 5
+using namespace std;
+
+atomic_flag flag;
+void foo(int id)
+{
+   //! get lock.
+   while (flag.test_and_set());
+
+   //! critical section.
+   cout << id << " enter ciritical section." << endl;
+   this_thread::sleep_for(chrono::milliseconds(1500));
+
+   //! release lock.
+   cout << id << " release lock." << endl;
+   flag.clear();
+}
+
+int main()
+{
+   vector<thread> t_arr;
+   for (int i = 0; i < SIZE; i++) t_arr.emplace_back(foo, i);
+   for (int i = 0; i < SIZE; i++) t_arr[i].join();
+   cout << "done" << endl;
+}
